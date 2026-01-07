@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: microblog_web
+    expose:
+      - "5000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      FLASK_APP: microblog.py
+      DATABASE_URL: postgresql://microblog:microblog@db:5432/microblog
+      REDIS_URL: redis://redis:6379/0
+    restart: always
+
+  db:
+    image: postgres:15
+    container_name: microblog_db
+    environment:
+      POSTGRES_USER: microblog
+      POSTGRES_PASSWORD: microblog
+      POSTGRES_DB: microblog
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  redis:
+    image: redis:7
+    container_name: microblog_redis
+    restart: always
+
+  nginx:
+    image: nginx:alpine
+    container_name: microblog_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - web
+    restart: always
+
+volumes:
+  postgres_data:
+
