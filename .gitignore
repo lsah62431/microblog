@@ -41,3 +41,9 @@ microblog.log*
 # Environment variables
 .flaskenv
 .env
+
+# Vim swap files
+*.swp
+*.swo
+*.swx
+
