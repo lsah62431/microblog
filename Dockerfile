@@ -3,10 +3,14 @@
 # =========================
 FROM python:3.11-slim AS builder
 
-RUN apt-get update && apt-get install -y \
+# منع أي تفاعل أثناء apt-get
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -25,10 +29,13 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # =========================
 FROM python:3.11-slim
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 # مكتبات التشغيل فقط (بدون أدوات build)
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
     libpq5 \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
