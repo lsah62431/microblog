@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from flask import render_template, flash, redirect, url_for, request, g, \
-    current_app
+    current_app, jsonify
 from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 import sqlalchemy as sa
@@ -239,3 +239,8 @@ def notifications():
         'data': n.get_data(),
         'timestamp': n.timestamp
     } for n in notifications]
+
+@bp.route("/health")
+def health():
+    return jsonify(status="ok"), 200
+
