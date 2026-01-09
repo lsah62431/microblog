@@ -47,3 +47,4 @@ microblog.log*
 *.swo
 *.swx
 
+certbot/

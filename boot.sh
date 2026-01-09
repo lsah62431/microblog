@@ -1,5 +1,6 @@
 #!/bin/bash
 # this script is used to boot a Docker container
+flask translate compile
 while true; do
     flask db upgrade
     if [[ "$?" == "0" ]]; then

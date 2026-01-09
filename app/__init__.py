@@ -1,3 +1,4 @@
+from werkzeug.middleware.proxy_fix import ProxyFix
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
@@ -14,6 +15,10 @@ import rq
 from config import Config
 
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+
 def get_locale():
     return request.accept_languages.best_match(current_app.config['LANGUAGES'])
 
@@ -23,6 +28,13 @@ migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
 login.login_message = _l('Please log in to access this page.')
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
+
+
 mail = Mail()
 moment = Moment()
 babel = Babel()
@@ -31,10 +43,18 @@ babel = Babel()
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app,
+        x_for=1,
+        x_proto=1,
+        x_host=1,
+        x_port=1
+    )
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
+    limiter.init_app(app)
+
     mail.init_app(app)
     moment.init_app(app)
     babel.init_app(app, locale_selector=get_locale)
@@ -57,6 +77,9 @@ def create_app(config_class=Config):
 
     from app.api import bp as api_bp
     app.register_blueprint(api_bp, url_prefix='/api')
+    
+
+
 
     if not app.debug and not app.testing:
         if app.config['MAIL_SERVER']:

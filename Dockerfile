@@ -53,7 +53,6 @@ ENV FLASK_APP=microblog.py
 ENV FLASK_RUN_HOST=0.0.0.0
 
 # يعتمد على كود التطبيق → في مرحلة متأخرة
-RUN flask translate compile
 
 EXPOSE 5000
 ENTRYPOINT ["./boot.sh"]
